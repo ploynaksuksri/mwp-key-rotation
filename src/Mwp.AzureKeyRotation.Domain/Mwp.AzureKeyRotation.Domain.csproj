@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.Azure.Management.Storage.Fluent" Version="1.34.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mwp.AzureKeyRotation.EntityFrameworkCore\Mwp.AzureKeyRotation.EntityFrameworkCore.csproj" />
+  </ItemGroup>
 </Project>

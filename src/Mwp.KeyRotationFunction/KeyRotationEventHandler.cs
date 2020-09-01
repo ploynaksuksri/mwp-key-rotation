@@ -19,7 +19,6 @@ namespace Mwp
             var objectInput = JObject.Parse(eventGridEvent.Data.ToString());
             var keyVaultName = (string)objectInput["VaultName"];
             var secretName = (string)objectInput["ObjectName"];
-            var secretVersion = (string)objectInput["Version"];
 
             KeyRotator.RotateKeyAsync(keyVaultName, secretName).GetAwaiter().GetResult();
         }

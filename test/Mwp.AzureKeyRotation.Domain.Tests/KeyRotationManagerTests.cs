@@ -39,7 +39,7 @@ namespace Mwp.AzureKeyRotation
             var secret = await _secretClient.SetAsync(secretName, secretObject.ToString());
 
             // Act
-            await KeyRotator.RotateKeyAsync(DefaultKeyVault, secretName, secret.Properties.Version);
+            await KeyRotator.RotateKeyAsync(DefaultKeyVault, secretName);
 
             // Assert
             var newAccessKey = await _storageClient.GetStorageAccessKey(storageAccount);

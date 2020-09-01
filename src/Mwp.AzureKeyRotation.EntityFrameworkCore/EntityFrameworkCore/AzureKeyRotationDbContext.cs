@@ -1,10 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Mwp.AzureKeyRotation.Users;
-using Volo.Abp.Data;
+using System;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.EntityFrameworkCore.Modeling;
-using Volo.Abp.Identity;
-using Volo.Abp.Users.EntityFrameworkCore;
 
 namespace Mwp.AzureKeyRotation.EntityFrameworkCore
 {
@@ -17,10 +13,11 @@ namespace Mwp.AzureKeyRotation.EntityFrameworkCore
      * Don't use this DbContext for database migrations since it does not contain tables of the
      * used modules (as explained above). See AzureKeyRotationMigrationsDbContext for migrations.
      */
-    [ConnectionStringName("Default")]
+
     public class AzureKeyRotationDbContext : AbpDbContext<AzureKeyRotationDbContext>
     {
-        public DbSet<AppUser> Users { get; set; }
+        public DbSet<SharedResource> SharedResources { get; set; }
+        public DbSet<TenantResource> TenantResources { get; set; }
 
         /* Add DbSet properties for your Aggregate Roots / Entities here.
          * Also map them inside AzureKeyRotationDbContextModelCreatingExtensions.ConfigureAzureKeyRotation
@@ -29,30 +26,28 @@ namespace Mwp.AzureKeyRotation.EntityFrameworkCore
         public AzureKeyRotationDbContext(DbContextOptions<AzureKeyRotationDbContext> options)
             : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            /* Configure the shared tables (with included modules) here */
-
-            builder.Entity<AppUser>(b =>
-            {
-                b.ToTable(AbpIdentityDbProperties.DbTablePrefix + "Users"); //Sharing the same table "AbpUsers" with the IdentityUser
-
-                b.ConfigureByConvention();
-                b.ConfigureAbpUser();
-
-                /* Configure mappings for your additional properties.
-                 * Also see the AzureKeyRotationEfCoreEntityExtensionMappings class.
-                 */
-            });
-
-            /* Configure your own tables/entities inside the ConfigureAzureKeyRotation method */
-
-            builder.ConfigureAzureKeyRotation();
+            builder.HasDefaultSchema("mwp");
         }
+    }
+
+    public class SharedResource
+    {
+        public Guid Id { get; set; }
+        public int CloudServiceLocationId { get; set; }
+        public int CloudServiceOptionId { get; set; }
+        public string SecretName { get; set; }
+    }
+
+    public class TenantResource
+    {
+        public Guid Id { get; set; }
+        public string ConnectionString { get; set; }
+        public int CloudServiceLocationId { get; set; }
+        public int CloudServiceOptionId { get; set; }
     }
 }
