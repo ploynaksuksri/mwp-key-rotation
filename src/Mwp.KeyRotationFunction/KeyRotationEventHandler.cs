@@ -21,7 +21,7 @@ namespace Mwp
             var secretName = (string)objectInput["ObjectName"];
             var secretVersion = (string)objectInput["Version"];
 
-            KeyRotationManager.RotateKeyAsync(keyVaultName, secretName, secretVersion).GetAwaiter().GetResult();
+            KeyRotator.RotateKeyAsync(keyVaultName, secretName).GetAwaiter().GetResult();
         }
     }
 }

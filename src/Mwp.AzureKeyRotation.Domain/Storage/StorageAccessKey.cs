@@ -7,7 +7,7 @@ namespace Mwp.Storage
         public string AccountName { get; set; }
         public string AccountKey { get; set; }
 
-        public override string ToString() =>
+        public string ConnectionString =>
             SharedResourceSecret.StorageConnectionStringTemplate
             .Replace("{name}", AccountName)
             .Replace("{key}", AccountKey);
