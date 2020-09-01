@@ -7,7 +7,7 @@ using MwpKeyVaultClient = Mwp.KeyVault.KeyVaultClient;
 
 namespace Mwp.KeyRotation
 {
-    public class KeyRotationManager
+    public class KeyRotator
     {
         public static async Task RotateKeyAsync(string keyVaultName, string secretName, string secretVersion)
         {
@@ -31,7 +31,7 @@ namespace Mwp.KeyRotation
 
         private static DateTimeOffset CalculateNextExpiresOn()
         {
-            return new DateTimeOffset(DateTime.UtcNow.AddDays(SharedResourceSecret.SecretExpiresOnDays), TimeSpan.Zero);
+            return DateTime.UtcNow.AddDays(SharedResourceSecret.SecretExpiresOnDays);
         }
 
         #endregion private methods
