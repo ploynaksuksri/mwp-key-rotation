@@ -3,6 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <RootNamespace>Mwp</RootNamespace>
+    <UserSecretsId>aaa93755-3c89-4973-9d5f-5412b923b12c</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.EventGrid" Version="3.2.0" />
