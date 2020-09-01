@@ -15,6 +15,7 @@ namespace Mwp
         [FunctionName("KeyRotationEventHandler")]
         public static void Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
         {
+            log.LogInformation(eventGridEvent.Data.ToString());
             var objectInput = JObject.Parse(eventGridEvent.Data.ToString());
             var keyVaultName = (string)objectInput["VaultName"];
             var secretName = (string)objectInput["ObjectName"];
