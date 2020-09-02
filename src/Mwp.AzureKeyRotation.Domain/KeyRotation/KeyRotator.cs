@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Mwp.AzureKeyRotation.EntityFrameworkCore;
+using Mwp.DbContext;
 using Mwp.Secret;
 using Mwp.SharedResource;
 using Mwp.Storage;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MwpKeyVaultClient = Mwp.KeyVault.KeyVaultClient;
 
@@ -26,52 +27,30 @@ namespace Mwp.KeyRotation
             secretValue[SharedResourceSecret.KeyProperty] = newAccessKey.ConnectionString;
 
             var newSecret = await secretClient.SetAsync(secretName, secretValue.ToString());
-            newSecret.Properties.ExpiresOn = CalculateNextExpiresOn();
+            newSecret.Properties.ExpiresOn = DateTime.UtcNow.AddDays(SharedResourceSecret.SecretExpiresOnDays);
             await secretClient.UpdateExpiresOn(newSecret.Properties);
 
-            var hostDBConnectionString = (await secretClient.GetAsync(SecretConsts.ConnectionStringsDefault)).Value;
+            var hostDbConnectionString = (await secretClient.GetAsync(SecretConsts.ConnectionStringsDefault)).Value;
 
-            await UpdateKeyToDatabase(hostDBConnectionString, secretName, newAccessKey.ConnectionString);
+            await UpdateKeyToDatabase(hostDbConnectionString, secretName, newAccessKey.ConnectionString);
         }
 
         public static async Task UpdateKeyToDatabase(string connectionString, string secretName, string keyToUpdate)
         {
-            try
+            var optionsBuilder = new DbContextOptionsBuilder<AzureKeyRotationDbContext>();
+            optionsBuilder.UseSqlServer(connectionString);
+
+            await using var dbContext = new AzureKeyRotationDbContext(optionsBuilder.Options);
+            var sharedResource = await dbContext.SharedResources.FirstOrDefaultAsync(e => e.SecretName == secretName);
+            var tenantResources = dbContext.TenantResources.Where(e => e.CloudServiceLocationId == sharedResource.CloudServiceLocationId
+                                                                       && e.CloudServiceOptionId == sharedResource.CloudServiceOptionId);
+            foreach (var resource in tenantResources)
             {
-                var optionsBuilder = new DbContextOptionsBuilder<AzureKeyRotationDbContext>();
-                optionsBuilder.UseSqlServer(connectionString);
-                using (var dbContext = new AzureKeyRotationDbContext(optionsBuilder.Options))
-                {
-                    var list = await dbContext.SharedResources.ToListAsync();
-                }
-            }
-            catch (Exception ex)
-            {
+                resource.ConnectionString = keyToUpdate;
             }
 
-            //using (SqlConnection conn = new SqlConnection(connectionString))
-            //{
-            //    conn.Open();
-            //    var updateQuery = @$"Update mwp.TenantResources set ConnectionString = '{keyToUpdate}'
-            //                  FROM mwp.TenantResources tr INNER JOIN mwp.SharedResources sr
-            //                  ON tr.CloudServiceLocationId = sr.CloudServiceLocationId
-            //                  AND tr.CloudServiceOptionId = sr.CloudServiceOptionId
-            //                  WHERE sr.SecretName = '{secretName}'";
-
-            //    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
-            //    {
-            //        var rows = await cmd.ExecuteNonQueryAsync();
-            //    }
-            //}
+            dbContext.TenantResources.UpdateRange(tenantResources);
+            await dbContext.SaveChangesAsync();
         }
-
-        #region private methods
-
-        private static DateTimeOffset CalculateNextExpiresOn()
-        {
-            return DateTime.UtcNow.AddDays(SharedResourceSecret.SecretExpiresOnDays);
-        }
-
-        #endregion private methods
     }
 }

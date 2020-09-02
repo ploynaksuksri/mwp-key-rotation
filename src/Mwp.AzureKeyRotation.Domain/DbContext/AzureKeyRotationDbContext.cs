@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using System;
 using Volo.Abp.EntityFrameworkCore;
 
-namespace Mwp.AzureKeyRotation.EntityFrameworkCore
+namespace Mwp.DbContext
 {
     /* This is your actual DbContext used on runtime.
      * It includes only your entities.
@@ -33,21 +32,5 @@ namespace Mwp.AzureKeyRotation.EntityFrameworkCore
             base.OnModelCreating(builder);
             builder.HasDefaultSchema("mwp");
         }
-    }
-
-    public class SharedResource
-    {
-        public Guid Id { get; set; }
-        public int CloudServiceLocationId { get; set; }
-        public int CloudServiceOptionId { get; set; }
-        public string SecretName { get; set; }
-    }
-
-    public class TenantResource
-    {
-        public Guid Id { get; set; }
-        public string ConnectionString { get; set; }
-        public int CloudServiceLocationId { get; set; }
-        public int CloudServiceOptionId { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace Mwp.AzureKeyRotation
         public const string DefaultResourceGroup = "mwp-local-app";
         public const string DefaultSubscriptionId = "29c044a6-2a71-48fb-9cb0-b4fdbe7c878a";
         public const string DefaultKeyVault = "mwp-kv-local";
+        public const string DefaultTestSecretName = "test-key-rotation";
         public const string MwpPrefix = "mwp";
 
         private readonly MwpKeyVaultClient _secretClient;
@@ -31,21 +32,19 @@ namespace Mwp.AzureKeyRotation
         public async Task Should_Rotate_AccessKey_Storage()
         {
             var storageName = MwpPrefix + "rotation" + new Random().Next(100000, 300000);
-            var secretName = "test-key-rotation";
             var storageAccount = await _storageClient.CreateAsync(DefaultResourceGroup, storageName, Region.AsiaSouthEast);
             var currentAccessKey = await _storageClient.GetStorageAccessKey(storageAccount);
-            var secretObject = CreateSharedResourceObject(currentAccessKey, storageName, DefaultSubscriptionId,
-                DefaultResourceGroup);
-            var secret = await _secretClient.SetAsync(secretName, secretObject.ToString());
+            var secretObject = CreateSharedResourceObject(currentAccessKey, storageName, DefaultSubscriptionId, DefaultResourceGroup);
+            await _secretClient.SetAsync(DefaultTestSecretName, secretObject.ToString());
 
             // Act
-            await KeyRotator.RotateKeyAsync(DefaultKeyVault, secretName);
+            await KeyRotator.RotateKeyAsync(DefaultKeyVault, DefaultTestSecretName);
 
             // Assert
             var newAccessKey = await _storageClient.GetStorageAccessKey(storageAccount);
             newAccessKey.ShouldNotBe(currentAccessKey);
 
-            var updatedSecret = await _secretClient.GetAsync(secretName);
+            var updatedSecret = await _secretClient.GetAsync(DefaultTestSecretName);
             var updatedSecretObject = JObject.Parse(updatedSecret.Value);
             ((string)updatedSecretObject[SharedResourceSecret.KeyProperty]).ShouldContain($"AccountKey={newAccessKey}");
             ((string)updatedSecretObject[SharedResourceSecret.ResourceNameProperty]).ShouldBe(storageName);

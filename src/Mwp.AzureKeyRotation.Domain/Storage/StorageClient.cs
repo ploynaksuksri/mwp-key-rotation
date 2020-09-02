@@ -58,21 +58,6 @@ namespace Mwp.Storage
             return storage;
         }
 
-        //public async Task<StorageAccessKey> GetStorageAccessKey(string resourceGroupName, string accountName)
-        //{
-        //    var storage = await GetAsync(resourceGroupName, accountName);
-        //    return new StorageAccessKey
-        //    {
-        //        AccountName = accountName,
-        //        AccountKey = await GetStorageAccessKey(storage)
-        //    };
-        //}
-
-        //public async Task<IStorageAccount> GetAsync(string resourceGroupName, string accountName)
-        //{
-        //    return await Azure.StorageAccounts.GetByResourceGroupAsync(resourceGroupName, accountName);
-        //}
-
         public async Task<string> GetStorageAccessKey(IStorageAccount storage)
         {
             var keys = await storage.GetKeysAsync();
