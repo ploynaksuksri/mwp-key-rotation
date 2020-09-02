@@ -13,14 +13,18 @@ namespace Mwp
     public static class KeyRotationEventHandler
     {
         [FunctionName("KeyRotationEventHandler")]
-        public static void Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
+        public static async void Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
         {
             log.LogInformation(eventGridEvent.Data.ToString());
             var objectInput = JObject.Parse(eventGridEvent.Data.ToString());
             var keyVaultName = (string)objectInput["VaultName"];
             var secretName = (string)objectInput["ObjectName"];
 
-            KeyRotator.RotateKeyAsync(keyVaultName, secretName).GetAwaiter().GetResult();
+            log.LogInformation($"Rotate Access key");
+            var keyRotator = new KeyRotator(log, keyVaultName);
+            var newConnectionString = await keyRotator.RotateKeyAsync(secretName);
+            var hostDbConnectionString = await keyRotator.GetHostDbConnectionString();
+            keyRotator.UpdateKeyToDatabase(hostDbConnectionString, secretName, newConnectionString).GetAwaiter().GetResult();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Mwp.SharedResource;
+﻿using Mwp.Constants;
 
 namespace Mwp.Storage
 {

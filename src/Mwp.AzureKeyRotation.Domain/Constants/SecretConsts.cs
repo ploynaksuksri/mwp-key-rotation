@@ -1,4 +1,4 @@
-﻿namespace Mwp.Secret
+﻿namespace Mwp.Constants
 {
     public class SecretConsts
     {

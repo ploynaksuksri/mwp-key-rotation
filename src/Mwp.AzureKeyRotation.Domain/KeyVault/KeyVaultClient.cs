@@ -26,12 +26,6 @@ namespace Mwp.KeyVault
             return secret.Value;
         }
 
-        //public async Task<string> GetAsync(string name)
-        //{
-        //    KeyVaultSecret secret = await _client.GetSecretAsync(TransformName(name));
-        //    return secret.Value;
-        //}
-
         public async Task<KeyVaultSecret> GetAsync(string name)
         {
             return await _client.GetSecretAsync(TransformName(name));
@@ -42,7 +36,7 @@ namespace Mwp.KeyVault
             return await _client.SetSecretAsync(name, value);
         }
 
-        public async Task UpdateExpiresOn(SecretProperties properties)
+        public async Task UpdateProperties(SecretProperties properties)
         {
             await _client.UpdateSecretPropertiesAsync(properties);
         }

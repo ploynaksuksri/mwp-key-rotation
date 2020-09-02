@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Mwp.AzureKeyRotation.Functions": {
+      "commandName": "Project"
+    }
+  }
+}

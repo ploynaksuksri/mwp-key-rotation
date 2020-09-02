@@ -2,9 +2,8 @@
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Azure.Management.Storage.Fluent;
+using Mwp.Constants;
 using Mwp.KeyVault;
-using Mwp.Secret;
-using Mwp.SharedResource;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

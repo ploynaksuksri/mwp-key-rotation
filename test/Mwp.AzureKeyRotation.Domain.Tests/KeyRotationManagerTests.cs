@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
+using Mwp.Constants;
 using Mwp.KeyRotation;
-using Mwp.SharedResource;
 using Mwp.Storage;
 using Newtonsoft.Json.Linq;
 using Shouldly;
@@ -38,15 +38,16 @@ namespace Mwp.AzureKeyRotation
             await _secretClient.SetAsync(DefaultTestSecretName, secretObject.ToString());
 
             // Act
-            await KeyRotator.RotateKeyAsync(DefaultKeyVault, DefaultTestSecretName);
+            var newConnectionString = await new KeyRotator(DefaultKeyVault).RotateKeyAsync(DefaultTestSecretName);
 
-            // Assert
+            // Assert - Access key is rotated
             var newAccessKey = await _storageClient.GetStorageAccessKey(storageAccount);
             newAccessKey.ShouldNotBe(currentAccessKey);
 
+            // Assert - New Access key is updated to Key Vault with new expiration date
             var updatedSecret = await _secretClient.GetAsync(DefaultTestSecretName);
             var updatedSecretObject = JObject.Parse(updatedSecret.Value);
-            ((string)updatedSecretObject[SharedResourceSecret.KeyProperty]).ShouldContain($"AccountKey={newAccessKey}");
+            ((string)updatedSecretObject[SharedResourceSecret.KeyProperty]).ShouldBe(newConnectionString);
             ((string)updatedSecretObject[SharedResourceSecret.ResourceNameProperty]).ShouldBe(storageName);
             updatedSecret.Properties.ExpiresOn?.ShouldBeGreaterThan(DateTimeOffset.UtcNow);
 

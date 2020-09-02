@@ -1,4 +1,4 @@
-﻿namespace Mwp.SharedResource
+﻿namespace Mwp.Constants
 {
     public class SharedResourceSecret
     {
@@ -12,6 +12,6 @@
         public const string StorageConnectionStringTemplate =
             "DefaultEndpointsProtocol=https;AccountName={name};AccountKey={key};EndpointSuffix=core.windows.net";
 
-        public const int SecretExpiresOnDays = 30;
+        public const int ValidityPeriodDays = 30;
     }
 }
